@@ -11,6 +11,7 @@ class Node:
 
         self.parents = []
 
+    # returns the probability of the node given its parents' values
     def query(self, nodeValues: [str]):
         columnNums = range(1, len(self.probabilityMatrix[0]))   # creates an array of all column numbers
         for parent in self.parents:
@@ -65,6 +66,8 @@ class BayesianNetwork:
     def addProbability(self, node: str, probabilityMatrix):
         self.nodes[node].probabilityMatrix = probabilityMatrix
 
+    # returns the probability of the given query
+    # input must be a comma delimited list of (node name)=(T|F)
     def query(self, queryString: str):
         nodeValues = []
         unusedNodes = list(self.nodes.keys())
@@ -84,7 +87,7 @@ class BayesianNetwork:
         while iterator < pow(2, len(unusedNodes)):
             tempIter: int = iterator
             fullQuery = nodeValues.copy()
-            for node in unusedNodes:
+            for node in unusedNodes:    # sets the values for the unused nodes based on the binary value of the iterator
                 fullQuery.append(node + f':{int(tempIter % 2)}')
                 tempIter /= 2
 
