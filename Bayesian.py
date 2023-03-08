@@ -14,7 +14,7 @@ class Node:
     # returns the probability of the node given its parents' values
     def query(self, nodeValues: [str]):
         columnNums = range(1, len(self.probabilityMatrix[0]))   # creates an array of all column numbers
-        for parent in self.parents:
+        for parent in self.parents:     # gets the column that corresponds to the values given for the parents
             rowNum = 0
             while self.probabilityMatrix[rowNum][0] != parent:
                 rowNum += 1
@@ -25,16 +25,17 @@ class Node:
                     parentValue = nodeValue
                     break
 
+            # removes columns that don't correspond to the values for the node's parents
             columnNums = [x for x in columnNums if self.probabilityMatrix[rowNum][x] == parentValue]
 
         value = ''
-        for nodeValue in nodeValues:
+        for nodeValue in nodeValues:    # gets the value specified for this node from the query
             if nodeValue[0] == self.name:
                 value = nodeValue
                 break
 
         rowNum = len(self.parents)
-        while self.probabilityMatrix[rowNum][0] != value:
+        while self.probabilityMatrix[rowNum][0] != value:  # gets row that this node's data is stored in for given value
             rowNum += 1
 
         return self.probabilityMatrix[rowNum][columnNums[0]]
@@ -70,20 +71,21 @@ class BayesianNetwork:
     # input must be a comma delimited list of (node name)=(T|F)
     def query(self, queryString: str):
         nodeValues = []
-        unusedNodes = list(self.nodes.keys())
-        if queryString != '':
+        unusedNodes = list(self.nodes.keys())   # list of all nodes not specified in query
+        if queryString != '':   # reformat the query into the format expected in each probability table
             queryString = queryString.replace('=', ':')
             nodeValues = queryString.split(',')
-        for i in range(len(nodeValues)):
+
+        for i in range(len(nodeValues)):    # can't do a simple replace for this, as the node's name might be T or F
             if nodeValues[i][2] == 'T':
                 nodeValues[i] = nodeValues[i][:2] + '1'
             else:
                 nodeValues[i] = nodeValues[i][:2] + '0'
 
-            unusedNodes.remove(nodeValues[i][0])
+            unusedNodes.remove(nodeValues[i][0])    # remove specified nodes from list of unspecified nodes
 
-        iterator: int = 0    # helps iterate over all valid values of nodes not specified in query
-        probability = 0
+        iterator: int = 0    # helps iterate over all valid values of nodes not specified in query (summing over)
+        probability = 0     # probability of only the nodes queried
         while iterator < pow(2, len(unusedNodes)):
             tempIter: int = iterator
             fullQuery = nodeValues.copy()
@@ -91,7 +93,7 @@ class BayesianNetwork:
                 fullQuery.append(node + f':{int(tempIter % 2)}')
                 tempIter /= 2
 
-            tempProb = 1
+            tempProb = 1    # will contain the value of this full query (every node has an assigned value)
             for node in self.nodes:
                 tempProb *= self.nodes[node].query(fullQuery)
 
