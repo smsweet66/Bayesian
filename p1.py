@@ -42,8 +42,8 @@ def main():
                             ["G:1", .64, .72]])
 
     regex = "^(([A-G]=(T|F))(?:,([A-G]=(T|F)))*)$|(^$)"
-    argc = len(sys.argv)
-    if argc != 2 or not bool(re.match(regex, sys.argv[1])):
+    if len(sys.argv) != 2 or not bool(re.match(regex, sys.argv[1])):
+        print(f"Number of arguments received: {len(sys.argv)}")
         print("Expected Format:")
         print(f"{sys.argv[0]} input")
         print("input must be a comma separated list of (node name)=(T/F)")
